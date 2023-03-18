@@ -1,4 +1,6 @@
 add_application(Dialog
+    src/@m..@s..@s..@s..@susr@slib@snim@spure@sparseutils.nim.c
+    src/@m..@s..@s..@s..@susr@slib@snim@spure@sstrutils.nim.c
     src/@m..@s..@s..@s..@susr@slib@snim@sstd@sprivate@sdigitsutils.nim.c
     src/@m..@s..@s..@s..@susr@slib@snim@ssystem.nim.c
     src/@m..@s..@s..@s..@susr@slib@snim@ssystem@sdollars.nim.c

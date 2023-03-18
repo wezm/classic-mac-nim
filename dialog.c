@@ -32,6 +32,8 @@
 
 extern ConstStringPtr hello_nim(void);
 extern void NimMain(void);
+extern void ConvertCtoF(unsigned char *, unsigned char *);
+extern void ConvertFtoC(unsigned char *, unsigned char *);
 
 pascal void ButtonFrameProc(DialogRef dlg, DialogItemIndex itemNo)
 {
@@ -44,6 +46,9 @@ pascal void ButtonFrameProc(DialogRef dlg, DialogItemIndex itemNo)
     PenSize(3,3);
     FrameRoundRect(&box,16,16);
 }
+
+#define CELCIUS_ITEM 7
+#define FAREN_ITEM 8
 
 int main(void)
 {
@@ -58,7 +63,7 @@ int main(void)
     NimMain(); /* Initialize Nim's garbage collector and run top level statements */
     DialogPtr dlg = GetNewDialog(128,0,(WindowPtr)-1);
     InitCursor();
-    SelectDialogItemText(dlg,4,0,32767);
+    SelectDialogItemText(dlg,CELCIUS_ITEM,0,32767);
 
     ConstStr255Param param1 = hello_nim();
 
@@ -68,31 +73,38 @@ int main(void)
     Handle itemH;
     Rect box;
 
+    Str255 celciusStr;
+    Str255 farenheitStr;
+
     GetDialogItem(dlg, 2, &type, &itemH, &box);
     SetDialogItem(dlg, 2, type, (Handle) NewUserItemUPP(&ButtonFrameProc), &box);
-
-    ControlHandle cb, radio1, radio2;
-    GetDialogItem(dlg, 5, &type, &itemH, &box);
-    cb = (ControlHandle)itemH;
-    GetDialogItem(dlg, 6, &type, &itemH, &box);
-    radio1 = (ControlHandle)itemH;
-    GetDialogItem(dlg, 7, &type, &itemH, &box);
-    radio2 = (ControlHandle)itemH;
-    SetControlValue(radio1, 1);
 
     short item;
     do {
         ModalDialog(NULL, &item);
 
-        if(item >= 5 && item <= 7)
-        {
-            if(item == 5)
-                SetControlValue(cb, !GetControlValue(cb));
-            if(item == 6 || item == 7)
-            {
-                SetControlValue(radio1, item == 6);
-                SetControlValue(radio2, item == 7);
-            }
+        if (item == CELCIUS_ITEM || item == FAREN_ITEM) {
+            // Update text values
+            GetDialogItem(dlg, CELCIUS_ITEM, &type, &itemH, &box);
+            GetDialogItemText(itemH, celciusStr);
+            GetDialogItem(dlg, FAREN_ITEM, &type, &itemH, &box);
+            GetDialogItemText(itemH, farenheitStr);
+        }
+
+        switch (item) {
+          // Typed in Celcius field, update Farenheit
+          case CELCIUS_ITEM:
+            ConvertCtoF(celciusStr, farenheitStr);
+            // Update the text of dialog item
+            GetDialogItem(dlg, FAREN_ITEM, &type, &itemH, &box); // TODO: Avoid re-getting this?
+            SetDialogItemText(itemH, farenheitStr);
+            break;
+          case FAREN_ITEM:
+            ConvertFtoC(farenheitStr, celciusStr);
+            // Update the text of dialog item
+            GetDialogItem(dlg, CELCIUS_ITEM, &type, &itemH, &box); // TODO: Avoid re-getting this
+            SetDialogItemText(itemH, celciusStr);
+            break;
         }
     } while(item != 1);
 
